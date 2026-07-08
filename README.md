@@ -32,10 +32,11 @@ can run it before wiring credentials.
 ### Backend setup (database + Edge Functions)
 
 `./scripts/setup-supabase.sh` applies all 4 SQL migrations
-(`supabase/migrations/`), sets the `EODHD_API_KEY` secret, and deploys all 3
-Edge Functions (`market-refresh`, `research-refresh`, `symbol-search`) in one
-run — see the script's header or `TESTING.md` for the values it needs and
-where to get them. Everything it does is idempotent, so it's safe to re-run.
+(`supabase/migrations/`), sets the `EODHD_API_KEY` secret (optional — you can
+add it later), and deploys all 3 Edge Functions (`market-refresh`,
+`research-refresh`, `symbol-search`) in one run — see the script's header or
+`TESTING.md` for the values it needs and where to get them. Everything it does
+is idempotent, so it's safe to re-run.
 
 ### Required credentials (never hardcoded)
 
