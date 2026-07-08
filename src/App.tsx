@@ -1,19 +1,23 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { config } from './lib/config'
 import { AuthProvider, useAuth } from './lib/auth'
 import { useProfile } from './lib/useProfile'
+import type { Profile } from './lib/profile'
 import { SetupRequired } from './components/SetupRequired'
 import { AuthScreen } from './components/AuthScreen'
 import { Onboarding } from './components/Onboarding'
-import { Dashboard } from './components/Dashboard'
+import { AppShell } from './components/AppShell'
 import { Loading } from './components/Loading'
+import { PortfolioPage } from './pages/PortfolioPage'
+import { TradePage } from './pages/TradePage'
+import { OrdersPage } from './pages/OrdersPage'
 
 /**
  * Top-level gate. The auth/onboarding pipeline is a linear sequence of states:
  *
  *   not configured → signed-out → (signed-in, no profile) → onboarded
  *
- * App picks exactly one screen for the current state; later phases will mount
- * the real router inside the onboarded branch.
+ * Once onboarded, the routed app (AppShell + pages) takes over.
  */
 export default function App() {
   if (!config.hasSupabase) return <SetupRequired />
@@ -41,5 +45,20 @@ function AuthedGate({ userId }: { userId: string }) {
   if (error) return <Loading label={`Couldn’t load profile: ${error}`} />
   if (!profile?.onboarded_at) return <Onboarding onDone={() => void refresh()} />
 
-  return <Dashboard profile={profile} />
+  return <RoutedApp profile={profile} />
+}
+
+function RoutedApp({ profile }: { profile: Profile }) {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppShell profile={profile} />}>
+          <Route index element={<PortfolioPage />} />
+          <Route path="trade" element={<TradePage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  )
 }

@@ -83,7 +83,7 @@ per-render and the free-tier limits stay safe.
 1. ✅ **Scaffold + schema + money/FX foundation**
 2. ✅ **Auth + onboarding** (email/password sign-in, home-currency setup, seeded portfolio)
 3. ✅ **Data layer with caching** (`market-refresh` Edge Function + client cache reads, stale-while-revalidate)
-4. ⬜ Portfolio + trading + FX UI
+4. ✅ **Portfolio + trading + FX UI** (atomic `execute_trade` RPC, valued holdings, dual-currency P&L, order history)
 5. ⬜ Portfolio graph
 6. ⬜ Research page + news
 7. ⬜ Search / watchlist / order history
