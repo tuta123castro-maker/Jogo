@@ -68,17 +68,21 @@ All amounts, prices, quantities and FX rates are `decimal.js` values, persisted
 to Postgres `numeric` (exact) as canonical decimal strings. Rounding happens
 only at the display boundary (`format()` in `src/lib/money.ts`).
 
-### Rate-limit discipline (data layer — next phase)
+### Rate-limit discipline (data layer)
 
-Delayed prices and FX rates will be fetched by a trusted server process
-(Supabase Edge Function, service role) into `price_cache` / `fx_cache`, so the
-client reads cached rows and never polls EODHD per-render.
+Delayed prices and FX rates are fetched by a trusted server process — the
+`market-refresh` Edge Function (service role, see
+`supabase/functions/market-refresh/`) — into `price_cache` / `fx_cache`. The
+client only ever reads those cached rows (`src/lib/marketData.ts`) and asks the
+function to refresh when a row is missing or older than the 15-minute TTL
+(stale-while-revalidate in `src/lib/useMarketData.ts`), so it never polls EODHD
+per-render and the free-tier limits stay safe.
 
 ## Build order & status
 
 1. ✅ **Scaffold + schema + money/FX foundation**
 2. ✅ **Auth + onboarding** (email/password sign-in, home-currency setup, seeded portfolio)
-3. ⬜ Data layer with caching
+3. ✅ **Data layer with caching** (`market-refresh` Edge Function + client cache reads, stale-while-revalidate)
 4. ⬜ Portfolio + trading + FX UI
 5. ⬜ Portfolio graph
 6. ⬜ Research page + news
