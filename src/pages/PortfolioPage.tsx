@@ -1,17 +1,32 @@
-import { Link, useOutletContext } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation, useOutletContext } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import { usePortfolio } from '../lib/usePortfolio'
+import { useSnapshots } from '../lib/useSnapshots'
 import { format } from '../lib/money'
 import { MoneyText, PnlText } from '../components/MoneyText'
+import { PortfolioChart } from '../components/PortfolioChart'
 import type { Profile } from '../lib/profile'
 
 export function PortfolioPage() {
   const { profile } = useOutletContext<{ profile: Profile }>()
   const { user } = useAuth()
+  const location = useLocation()
+  const justTraded = Boolean(
+    (location.state as { justTraded?: boolean } | null)?.justTraded,
+  )
   const { summary, loading, error, refresh } = usePortfolio(
     user?.id ?? null,
     profile.home_currency,
+    justTraded,
   )
+  const { snapshots, refresh: refreshSnapshots } = useSnapshots(user?.id ?? null)
+
+  useEffect(() => {
+    // Re-sync once per successful load — including the load that just wrote a
+    // new snapshot after a trade — so the chart never lags a load behind.
+    if (summary) void refreshSnapshots()
+  }, [summary, refreshSnapshots])
 
   if (loading && !summary) {
     return <p className="text-sm text-slate-400">Loading your portfolio…</p>
@@ -43,6 +58,8 @@ export function PortfolioPage() {
           </span>
         </div>
       </section>
+
+      <PortfolioChart snapshots={snapshots} currency={profile.home_currency} />
 
       <section className="flex items-center justify-between">
         <h2 className="text-sm font-medium text-slate-200">Holdings</h2>

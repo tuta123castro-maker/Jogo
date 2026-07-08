@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { getSupabase } from './supabase'
 import { money } from './money'
 import type { HomeCurrency } from './currency'
@@ -15,12 +15,18 @@ import {
   type PriceRow,
 } from './marketData'
 import { summarizePortfolio, type PortfolioSummary } from './portfolioSummary'
+import { isSnapshotDue, loadLatestSnapshot, recordSnapshot } from './snapshots'
 
 /**
  * Loads the portfolio and values it against the market-data cache. Gathers the
  * symbols and native currencies it holds, reads their cached prices/FX,
  * triggers a best-effort refresh for anything missing or stale, then builds the
  * summary. `refresh` re-runs the whole thing after a trade.
+ *
+ * Also records a portfolio-value snapshot for the value-over-time graph: once
+ * per UTC calendar day the user is active (ambient), or immediately when
+ * `forceSnapshotOnce` is set — used right after a trade so every trade shows
+ * up as its own point.
  */
 export interface UsePortfolio {
   summary: PortfolioSummary | null
@@ -32,10 +38,12 @@ export interface UsePortfolio {
 export function usePortfolio(
   userId: string | null,
   homeCurrency: HomeCurrency,
+  forceSnapshotOnce = false,
 ): UsePortfolio {
   const [summary, setSummary] = useState<PortfolioSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const forceNext = useRef(forceSnapshotOnce)
 
   const load = useCallback(async () => {
     const supabase = getSupabase()
@@ -81,14 +89,24 @@ export function usePortfolio(
         }
       }
 
-      setSummary(
-        summarizePortfolio({
-          cash,
-          positions,
-          priceOf: priceLookup(priceRows),
-          fxOf: (from, to) => resolveFxRate(from, to, fxRows),
-        }),
-      )
+      const built = summarizePortfolio({
+        cash,
+        positions,
+        priceOf: priceLookup(priceRows),
+        fxOf: (from, to) => resolveFxRate(from, to, fxRows),
+      })
+      setSummary(built)
+
+      const force = forceNext.current
+      forceNext.current = false
+      try {
+        const latest = await loadLatestSnapshot(supabase, userId)
+        if (isSnapshotDue(latest?.captured_at ?? null, Date.now(), force)) {
+          await recordSnapshot(supabase, userId, built.totalValueHome)
+        }
+      } catch {
+        // Snapshotting is best-effort; never block the portfolio view on it.
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load portfolio.')
       setSummary(null)

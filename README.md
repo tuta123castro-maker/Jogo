@@ -78,13 +78,23 @@ function to refresh when a row is missing or older than the 15-minute TTL
 (stale-while-revalidate in `src/lib/useMarketData.ts`), so it never polls EODHD
 per-render and the free-tier limits stay safe.
 
+### Snapshot cadence (no cron required)
+
+`portfolio_snapshots` rows are written client-side, without a scheduled job:
+once per UTC calendar day the user has the app open (ambient, from
+`usePortfolio`'s load), plus once more immediately after every trade
+(event-based, forced via `TradePage`'s navigation state). See
+`src/lib/snapshots.ts` (`isSnapshotDue`). This matches the "daily or per-event"
+design already noted on the table and reuses the same
+stale-while-revalidate shape as the price/FX cache.
+
 ## Build order & status
 
 1. ✅ **Scaffold + schema + money/FX foundation**
 2. ✅ **Auth + onboarding** (email/password sign-in, home-currency setup, seeded portfolio)
 3. ✅ **Data layer with caching** (`market-refresh` Edge Function + client cache reads, stale-while-revalidate)
 4. ✅ **Portfolio + trading + FX UI** (atomic `execute_trade` RPC, valued holdings, dual-currency P&L, order history)
-5. ⬜ Portfolio graph
+5. ✅ **Portfolio graph** (value-over-time chart, daily + per-trade snapshots, range filters)
 6. ⬜ Research page + news
 7. ⬜ Search / watchlist / order history
 8. ⬜ PWA polish

@@ -90,7 +90,7 @@ export function TradePage() {
         fxRate: effectiveFx,
         homeCurrency: home,
       })
-      navigate('/', { replace: true })
+      navigate('/', { replace: true, state: { justTraded: true } })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Trade failed.')
     } finally {
