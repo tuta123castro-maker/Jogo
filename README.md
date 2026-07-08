@@ -17,11 +17,25 @@ FX effect** on returns.
 
 ## Getting started
 
+**Full setup + a manual test checklist: see [`TESTING.md`](./TESTING.md).**
+Short version:
+
 ```bash
 npm install
 cp .env.example .env   # then paste your credentials
 npm run dev
 ```
+
+The app renders a **setup status** panel until Supabase is configured, so you
+can run it before wiring credentials.
+
+### Backend setup (database + Edge Functions)
+
+`./scripts/setup-supabase.sh` applies all 4 SQL migrations
+(`supabase/migrations/`), sets the `EODHD_API_KEY` secret, and deploys all 3
+Edge Functions (`market-refresh`, `research-refresh`, `symbol-search`) in one
+run — see the script's header or `TESTING.md` for the values it needs and
+where to get them. Everything it does is idempotent, so it's safe to re-run.
 
 ### Required credentials (never hardcoded)
 
@@ -31,17 +45,7 @@ Fill these in `.env` (see `.env.example`):
 | --- | --- |
 | `VITE_SUPABASE_URL` | Supabase → Project Settings → API |
 | `VITE_SUPABASE_ANON_KEY` | Supabase → Project Settings → API |
-| `VITE_EODHD_API_KEY` | https://eodhd.com → API tokens (local testing only) |
-
-The app renders a **setup status** panel until Supabase and EODHD are
-configured, so you can run it before wiring credentials.
-
-### Database
-
-Apply `supabase/migrations/0001_init.sql` to your Supabase project (SQL editor
-or the Supabase CLI). It creates the tables from the SPEC data model plus
-snapshot/watchlist tables, all protected by Row Level Security so each user
-only sees their own data.
+| `VITE_EODHD_API_KEY` | Not needed locally — the key lives server-side in the Edge Functions (see above). Only set this for early testing before the functions are deployed. |
 
 ## Scripts
 
