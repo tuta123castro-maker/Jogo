@@ -1,7 +1,8 @@
 # Open Markets v2 — Coverage Audit (SPEC-v2 STEP 1)
 
-**Status:** ⏸️ Awaiting human sign-off. Do **not** start STEP 2 until the
-decisions at the bottom are answered.
+**Status:** ✅ Signed off — **STEP 2 not pursued** (see "Decisions — RESOLVED").
+The expansion is on hold because the chosen EODHD tier is *free*, which serves
+US data only.
 
 **Date:** 2026-07-08
 
@@ -112,17 +113,27 @@ support it.
 
 ---
 
-## Decisions needed before STEP 2 (please answer)
+## Decisions — RESOLVED (2026-07-08)
 
-1. **v1 gap:** v1 isn't built. Do you want v1 built first, or should v2 features
-   be built on top of the Phase-0 base as we go (defining the initial universe
-   as part of this work)?
-2. **Paid tier / cost:** Which EODHD plan is the account on now? Are you willing
-   to pay for the All-In-One tier to get delayed intraday where available, or
-   stay on the EOD plan and accept EOD-only everywhere new?
-3. **EOD-only display:** Include EOD-only assets with a clear *"end-of-day
-   only"* label (recommended), or leave EOD-only markets out entirely?
-4. **Russia:** Confirm defer (recommended), or do you have a redistributable
-   source you want me to evaluate?
-5. **China A-shares & Romania:** Include them (EOD-only, thinner data), or hold
-   to just Hong Kong for China and drop Romania for now?
+1. **v1 gap:** Build v2 on the Phase-0 base (don't build full v1 first).
+2. **Paid tier / cost:** *Free tier only.*
+3. **EOD-only display:** Include with a clear "end-of-day only" label.
+4. **Hard markets:** Include Romania + China A-shares; **Russia deferred.**
+
+### Outcome: expansion NOT pursued
+
+Decision 2 (free tier) is decisive. **EODHD's free tier serves US end-of-day
+data only (~20 calls/day); none of the candidate international markets are
+available for free at any data quality.** Verified live in §1: even the `demo`
+token returns `Forbidden` for `0700.HK` while `AAPL.US` works.
+
+Given decision 3 (don't reconsider paying; "don't expand — stay free/US"),
+**there are no markets to add**, so STEP 2–6 are not built. Decisions 1, 3, and
+4 are recorded for whenever a paid EODHD key (≥ All-World EOD, ~US$20/mo) is
+obtained — at which point this audit's §6 addability table and the edge-case
+handling in SPEC-v2 STEP 2 become actionable exactly as written.
+
+**To resume later:** obtain an All-World EOD key, then implement STEP 2 in the
+spec's build order using §6 (add HK + the 8 clean markets + Romania + China
+A-shares as **EOD-only**, defer Russia), §3 (new currencies SAR/TRY/PLN/RON/
+NOK/SEK), and the per-market symbol quirks in §2.
