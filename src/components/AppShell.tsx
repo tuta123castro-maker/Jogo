@@ -12,6 +12,7 @@ export function AppShell({ profile }: { profile: Profile }) {
   const tabs = [
     { to: '/', label: 'Portfolio', end: true },
     { to: '/trade', label: 'Trade', end: false },
+    { to: '/research', label: 'Research', end: false },
     { to: '/orders', label: 'Orders', end: false },
   ]
 

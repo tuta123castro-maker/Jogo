@@ -88,6 +88,16 @@ once per UTC calendar day the user has the app open (ambient, from
 design already noted on the table and reuses the same
 stale-while-revalidate shape as the price/FX cache.
 
+### Research data (fundamentals + news)
+
+Fundamentals and news follow the same client-never-calls-EODHD rule as prices,
+but via a separate `research-refresh` Edge Function
+(`supabase/functions/research-refresh/`) with much longer TTLs — fundamentals
+for a day, news for an hour — since this data barely moves compared to a live
+quote. Cached in `fundamentals_cache` / `news_cache`
+(`supabase/migrations/0003_research_cache.sql`); read client-side from
+`src/lib/research.ts`.
+
 ## Build order & status
 
 1. ✅ **Scaffold + schema + money/FX foundation**
@@ -95,6 +105,6 @@ stale-while-revalidate shape as the price/FX cache.
 3. ✅ **Data layer with caching** (`market-refresh` Edge Function + client cache reads, stale-while-revalidate)
 4. ✅ **Portfolio + trading + FX UI** (atomic `execute_trade` RPC, valued holdings, dual-currency P&L, order history)
 5. ✅ **Portfolio graph** (value-over-time chart, daily + per-trade snapshots, range filters)
-6. ⬜ Research page + news
-7. ⬜ Search / watchlist / order history
+6. ✅ **Research page + news** (`research-refresh` Edge Function, fundamentals + news cache)
+7. ⬜ Search / watchlist (order history shipped in phase 4's Orders tab)
 8. ⬜ PWA polish

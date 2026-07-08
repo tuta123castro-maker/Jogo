@@ -92,9 +92,12 @@ export function PortfolioPage() {
               className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/40 px-4 py-3"
             >
               <div>
-                <p className="text-sm font-medium text-slate-100">
+                <Link
+                  to={`/research?symbol=${encodeURIComponent(position.symbol)}`}
+                  className="text-sm font-medium text-slate-100 hover:text-sky-400"
+                >
                   {position.symbol}
-                </p>
+                </Link>
                 <p className="text-xs text-slate-400">
                   {position.quantity.toString()} @{' '}
                   {format(
