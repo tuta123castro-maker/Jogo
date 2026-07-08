@@ -110,6 +110,25 @@ normalized query server-side (7-day TTL) to save repeat EODHD calls across the
 small user pool. The client debounces keystrokes 300ms before calling it
 (`src/lib/useSymbolSearch.ts`).
 
+### PWA behavior
+
+- **Offline banner** (`src/components/OfflineBanner.tsx`) — every screen needs
+  a Supabase round trip, so a `navigator`-online hook surfaces "you're
+  offline" instead of letting each call fail silently.
+- **Update prompt** (`src/components/UpdatePrompt.tsx`) — installed PWAs are
+  often left open for days; `registerType: 'autoUpdate'` alone would leave a
+  new version cached but never applied, so this uses
+  `virtual:pwa-register/react` to offer a reload once one's ready, and confirms
+  the first install is available offline.
+- **Offline deep links** — `workbox.navigateFallback` in `vite.config.ts`
+  serves the cached app shell for any unmatched navigation, so opening the
+  installed app to `/research` (client-routed) while offline still loads
+  instead of failing.
+- **Code-splitting** — every page but the Portfolio landing page is
+  `React.lazy`-loaded, and `manualChunks` separates React/Supabase vendor code
+  from app code, so a redeploy doesn't force everyone to re-download the
+  vendor bundle.
+
 ## Build order & status
 
 1. ✅ **Scaffold + schema + money/FX foundation**
@@ -119,4 +138,4 @@ small user pool. The client debounces keystrokes 300ms before calling it
 5. ✅ **Portfolio graph** (value-over-time chart, daily + per-trade snapshots, range filters)
 6. ✅ **Research page + news** (`research-refresh` Edge Function, fundamentals + news cache)
 7. ✅ **Search + watchlist** (`symbol-search` Edge Function + typeahead, star toggle, Watchlist tab with live prices)
-8. ⬜ PWA polish
+8. ✅ **PWA polish** (offline banner, update-available prompt, offline deep-link fallback, route + vendor code-splitting)
