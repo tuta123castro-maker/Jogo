@@ -76,8 +76,8 @@ client reads cached rows and never polls EODHD per-render.
 
 ## Build order & status
 
-1. ✅ **Scaffold + schema + money/FX foundation** (this commit)
-2. ⬜ Auth + onboarding
+1. ✅ **Scaffold + schema + money/FX foundation**
+2. ✅ **Auth + onboarding** (email/password sign-in, home-currency setup, seeded portfolio)
 3. ⬜ Data layer with caching
 4. ⬜ Portfolio + trading + FX UI
 5. ⬜ Portfolio graph
