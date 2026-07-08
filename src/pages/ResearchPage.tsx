@@ -1,53 +1,49 @@
-import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useAuth } from '../lib/auth'
 import { useResearch } from '../lib/useResearch'
+import { useWatchlist } from '../lib/useWatchlist'
+import { SymbolSearch } from '../components/SymbolSearch'
 import type { FundamentalsRow, NewsRow } from '../lib/research'
 
 /**
- * Research: fundamentals + recent news for one symbol at a time. Search and
- * watchlist (typeahead, saved symbols) land in the next phase — for now the
- * lookup is a plain symbol field, seeded from `?symbol=` when linked in from
- * elsewhere (e.g. a holding).
+ * Research: look up a symbol (typeahead over EODHD's search, or a raw symbol
+ * that isn't in the search index) and see its fundamentals + recent news, with
+ * a star toggle to add/remove it from the watchlist.
  */
 export function ResearchPage() {
+  const { user } = useAuth()
   const [params, setParams] = useSearchParams()
-  const initial = params.get('symbol') ?? ''
-  const [input, setInput] = useState(initial)
   const symbol = params.get('symbol') ?? ''
   const { fundamentals, news, loading, error } = useResearch(symbol)
-
-  function lookup() {
-    const sym = input.trim().toUpperCase()
-    if (!sym) return
-    setParams({ symbol: sym })
-  }
+  const { isWatched, toggle } = useWatchlist(user?.id ?? null)
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex gap-2">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value.toUpperCase())}
-          onKeyDown={(e) => e.key === 'Enter' && lookup()}
-          placeholder="AAPL.US"
-          className="flex-1 rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500"
-        />
-        <button
-          type="button"
-          onClick={lookup}
-          className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-500"
-        >
-          Look up
-        </button>
-      </div>
+      <SymbolSearch onSelect={(sym) => setParams({ symbol: sym })} />
 
       {!symbol ? (
         <p className="rounded-lg border border-dashed border-slate-700 px-4 py-8 text-center text-sm text-slate-400">
-          Enter an EODHD symbol (e.g. AAPL.US, 7203.T) to see its fundamentals
-          and recent news.
+          Search a company or enter an EODHD symbol (e.g. AAPL.US, 7203.T) to
+          see its fundamentals and recent news.
         </p>
       ) : (
         <>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-slate-200">{symbol}</h2>
+            <button
+              type="button"
+              onClick={() => void toggle(symbol)}
+              className={
+                'rounded-md border px-3 py-1 text-xs font-medium transition ' +
+                (isWatched(symbol)
+                  ? 'border-amber-500 text-amber-400 hover:bg-amber-500/10'
+                  : 'border-slate-600 text-slate-300 hover:border-slate-400')
+              }
+            >
+              {isWatched(symbol) ? '★ On watchlist' : '☆ Add to watchlist'}
+            </button>
+          </div>
+
           {loading && !fundamentals ? (
             <p className="text-sm text-slate-400">Loading {symbol}…</p>
           ) : null}

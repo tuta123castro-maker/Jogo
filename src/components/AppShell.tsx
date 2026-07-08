@@ -13,6 +13,7 @@ export function AppShell({ profile }: { profile: Profile }) {
     { to: '/', label: 'Portfolio', end: true },
     { to: '/trade', label: 'Trade', end: false },
     { to: '/research', label: 'Research', end: false },
+    { to: '/watchlist', label: 'Watchlist', end: false },
     { to: '/orders', label: 'Orders', end: false },
   ]
 
@@ -32,14 +33,14 @@ export function AppShell({ profile }: { profile: Profile }) {
         </button>
       </header>
 
-      <nav className="flex gap-1 px-5">
+      <nav className="flex gap-1 overflow-x-auto px-5">
         {tabs.map((t) => (
           <NavLink
             key={t.to}
             to={t.to}
             end={t.end}
             className={({ isActive }) =>
-              'rounded-md px-3 py-1.5 text-sm transition ' +
+              'shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-sm transition ' +
               (isActive
                 ? 'bg-slate-800 text-slate-100'
                 : 'text-slate-400 hover:text-slate-200')

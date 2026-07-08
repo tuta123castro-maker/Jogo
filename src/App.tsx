@@ -12,6 +12,7 @@ import { PortfolioPage } from './pages/PortfolioPage'
 import { TradePage } from './pages/TradePage'
 import { OrdersPage } from './pages/OrdersPage'
 import { ResearchPage } from './pages/ResearchPage'
+import { WatchlistPage } from './pages/WatchlistPage'
 
 /**
  * Top-level gate. The auth/onboarding pipeline is a linear sequence of states:
@@ -57,6 +58,7 @@ function RoutedApp({ profile }: { profile: Profile }) {
           <Route index element={<PortfolioPage />} />
           <Route path="trade" element={<TradePage />} />
           <Route path="research" element={<ResearchPage />} />
+          <Route path="watchlist" element={<WatchlistPage />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

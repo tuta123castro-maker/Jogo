@@ -98,6 +98,18 @@ quote. Cached in `fundamentals_cache` / `news_cache`
 (`supabase/migrations/0003_research_cache.sql`); read client-side from
 `src/lib/research.ts`.
 
+### Symbol search
+
+`symbol-search` (`supabase/functions/symbol-search/`) is the only process that
+calls EODHD's ticker search. It differs from the other Edge Functions: the
+client never reads its cache table directly (`symbol_search_cache` has RLS
+enabled with **no** policies — every client role is denied; only the
+service role can touch it). Instead the function returns results straight in
+its response, like any search-as-you-type endpoint, while still caching by
+normalized query server-side (7-day TTL) to save repeat EODHD calls across the
+small user pool. The client debounces keystrokes 300ms before calling it
+(`src/lib/useSymbolSearch.ts`).
+
 ## Build order & status
 
 1. ✅ **Scaffold + schema + money/FX foundation**
@@ -106,5 +118,5 @@ quote. Cached in `fundamentals_cache` / `news_cache`
 4. ✅ **Portfolio + trading + FX UI** (atomic `execute_trade` RPC, valued holdings, dual-currency P&L, order history)
 5. ✅ **Portfolio graph** (value-over-time chart, daily + per-trade snapshots, range filters)
 6. ✅ **Research page + news** (`research-refresh` Edge Function, fundamentals + news cache)
-7. ⬜ Search / watchlist (order history shipped in phase 4's Orders tab)
+7. ✅ **Search + watchlist** (`symbol-search` Edge Function + typeahead, star toggle, Watchlist tab with live prices)
 8. ⬜ PWA polish
