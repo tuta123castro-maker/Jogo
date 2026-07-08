@@ -16,6 +16,7 @@ export default defineConfig({
         name: 'Open Markets',
         short_name: 'OpenMkts',
         description: 'A private paper-trading simulator.',
+        start_url: '/',
         theme_color: '#0b1220',
         background_color: '#0b1220',
         display: 'standalone',
@@ -30,8 +31,27 @@ export default defineConfig({
           },
         ],
       },
+      workbox: {
+        // The app is client-routed (react-router); without this, opening a
+        // deep link (e.g. /research) while offline has no cached response —
+        // every unmatched navigation falls back to the precached app shell.
+        navigateFallback: '/index.html',
+      },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        // Vendor code changes far less often than app code, so splitting it
+        // out gets a returning visitor a cache hit on redeploy instead of
+        // re-downloading React/Supabase every time the app ships a fix.
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          supabase: ['@supabase/supabase-js'],
+        },
+      },
+    },
+  },
   test: {
     environment: 'node',
   },
