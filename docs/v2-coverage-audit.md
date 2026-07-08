@@ -137,3 +137,19 @@ handling in SPEC-v2 STEP 2 become actionable exactly as written.
 spec's build order using §6 (add HK + the 8 clean markets + Romania + China
 A-shares as **EOD-only**, defer Russia), §3 (new currencies SAR/TRY/PLN/RON/
 NOK/SEK), and the per-market symbol quirks in §2.
+
+### Plan-independent scaffolding — BUILT (free, no data feed needed)
+
+To make "resume later" a flip of a key rather than a rebuild, the parts of
+STEP 2 that don't depend on a live feed are already implemented and tested:
+
+| Concern (STEP 2) | Module | What it does |
+|---|---|---|
+| Universe + EOD-only labeling (2.1) | `src/lib/markets.ts` | Exchange registry (suffix, currency, timezone, calendar, `dataQuality`, `requiresPaidTier`); `dataQualityLabel()`; Russia in `DEFERRED_EXCHANGES`. |
+| Extended FX pairs (2.2) | `src/lib/fx.ts` | New currencies added to `currency.ts`; `universeFxPairs()` enumerates every native→home pair the FX cache must hold. |
+| Trading hours & holidays (2.3) | `src/lib/exchange-hours.ts` | `exchangeStatus()` → open / closed / weekend / holiday, timezone-correct, with lunch breaks and Tadawul's Sun–Thu week. |
+| Ticker/suffix normalization (2.4) | `src/lib/symbols.ts` | `parseSymbol()` / `normalizeSymbol()` → canonical `CODE.EXCHANGE`, HK zero-padding, Nordic share-class dashes. |
+
+Covered by `markets.test.ts`, `fx.test.ts`, `symbols.test.ts` (21 tests). What
+remains gated behind a paid key: live price/fundamentals/news fetching and the
+UI wiring that renders these labels and statuses.

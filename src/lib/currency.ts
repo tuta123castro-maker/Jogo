@@ -36,6 +36,13 @@ const REGISTRY: Record<string, CurrencyMeta> = {
   BRL: { code: 'BRL', symbol: 'R$', minorUnits: 2 },
   CHF: { code: 'CHF', symbol: 'CHF', minorUnits: 2 },
   HKD: { code: 'HKD', symbol: 'HK$', minorUnits: 2 },
+  // v2 market-expansion currencies (see docs/v2-coverage-audit.md §3).
+  SAR: { code: 'SAR', symbol: 'ر.س', minorUnits: 2 },
+  TRY: { code: 'TRY', symbol: '₺', minorUnits: 2 },
+  PLN: { code: 'PLN', symbol: 'zł', minorUnits: 2 },
+  RON: { code: 'RON', symbol: 'lei', minorUnits: 2 },
+  NOK: { code: 'NOK', symbol: 'kr', minorUnits: 2 },
+  SEK: { code: 'SEK', symbol: 'kr', minorUnits: 2 },
 }
 
 const FALLBACK_MINOR_UNITS = 2
